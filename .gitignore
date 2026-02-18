@@ -1,0 +1,14 @@
+# Terraform
+V1/terraform/
+
+# Environment variables
+.env
+!.env.example
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml

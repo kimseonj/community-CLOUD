@@ -1,0 +1,28 @@
+logging {
+  level = "info"
+}
+
+prometheus.exporter.self "alloy" {}
+
+prometheus.scrape "alloy_self" {
+  targets    = prometheus.exporter.self.alloy.targets
+  forward_to = [prometheus.remote_write.monitoring.receiver]
+}
+
+prometheus.scrape "spring_backend" {
+  targets = [{
+    "__address__" = sys.env("ALLOY_SPRING_TARGET")
+    "job"         = "spring-backend"
+    "instance"    = sys.env("ALLOY_INSTANCE")
+  }]
+
+  # prod profile uses server.servlet.context-path=/api
+  metrics_path = "/api/actuator/prometheus"
+  forward_to   = [prometheus.remote_write.monitoring.receiver]
+}
+
+prometheus.remote_write "monitoring" {
+  endpoint {
+    url = sys.env("PROM_REMOTE_WRITE_URL")
+  }
+}
