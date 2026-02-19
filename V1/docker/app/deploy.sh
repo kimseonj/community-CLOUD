@@ -4,6 +4,14 @@ set -euo pipefail
 COMPONENT="${1:-all}"
 TAG="${2:-latest}"
 
+DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-./deploy.env}"
+if [ -f "$DEPLOY_ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$DEPLOY_ENV_FILE"
+  set +a
+fi
+
 AWS_REGION="${AWS_REGION:-ap-northeast-2}"
 AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:?AWS_ACCOUNT_ID is required}"
 BACK_REPOSITORY="${BACK_REPOSITORY:-community-back}"

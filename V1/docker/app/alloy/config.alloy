@@ -26,3 +26,50 @@ prometheus.remote_write "monitoring" {
     url = sys.env("PROM_REMOTE_WRITE_URL")
   }
 }
+
+local.file_match "docker_logs" {
+  path_targets = [{
+    __path__  = sys.env("ALLOY_LOG_PATH_GLOB")
+    job       = "spring-backend-logs"
+    instance  = sys.env("ALLOY_INSTANCE")
+    container = "community-backend"
+  }]
+}
+
+loki.source.file "docker_logs" {
+  targets    = local.file_match.docker_logs.targets
+  forward_to = [loki.process.docker_json.receiver]
+}
+
+loki.process "docker_json" {
+  stage.json {
+    expressions = {
+      log    = "log"
+      stream = "stream"
+      time   = "time"
+    }
+  }
+
+  stage.labels {
+    values = {
+      stream = ""
+    }
+  }
+
+  stage.timestamp {
+    source = "time"
+    format = "RFC3339Nano"
+  }
+
+  stage.output {
+    source = "log"
+  }
+
+  forward_to = [loki.write.monitoring.receiver]
+}
+
+loki.write "monitoring" {
+  endpoint {
+    url = sys.env("LOKI_WRITE_URL")
+  }
+}

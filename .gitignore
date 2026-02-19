@@ -4,6 +4,9 @@ V1/terraform/
 # Environment variables
 .env
 !.env.example
+V1/docker/app/backend.env
+V1/docker/app/alloy.env
+V1/docker/app/deploy.env
 
 # macOS
 .DS_Store
