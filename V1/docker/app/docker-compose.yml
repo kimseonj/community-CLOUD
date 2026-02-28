@@ -1,61 +1,42 @@
 services:
-  nginx:
-    build:
-      context: ./nginx
-    image: community-nginx:latest
-    container_name: community-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    environment:
-      BACKEND_HOST: backend
-      BACKEND_PORT: "8080"
-      FRONTEND_HOST: frontend
-      FRONTEND_PORT: "3000"
-    depends_on:
-      - backend
-      - frontend
-    networks:
-      - app_net
-
   backend:
     image: ${BACKEND_IMAGE}
     container_name: community-backend
     restart: unless-stopped
+    ports:
+      - "8080:8080"
     expose:
       - "8080"
+    env_file:
+      - ./back.env
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-    networks:
-      - app_net
-
-  frontend:
-    image: ${FRONTEND_IMAGE}
-    container_name: community-frontend
-    restart: unless-stopped
-    expose:
-      - "3000"
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
+      SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
+      SPRING_DATA_REDIS_PASSWORD: ${SPRING_DATA_REDIS_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - app_net
 
   alloy:
-    image: grafana/alloy:v1.8.3
+    image: ${ALLOY_IMAGE:-grafana/alloy:latest}
     container_name: community-alloy
     restart: unless-stopped
     command:
-      - "run"
-      - "--storage.path=/var/lib/alloy/data"
-      - "--server.http.listen-addr=0.0.0.0:12345"
-      - "/etc/alloy/config.alloy"
+      - run
+      - /etc/alloy/config.alloy
+    env_file:
+      - ./alloy.env
     environment:
       ALLOY_SPRING_TARGET: ${ALLOY_SPRING_TARGET:-backend:8080}
-      ALLOY_INSTANCE: ${ALLOY_INSTANCE:-app-ec2}
+      ALLOY_INSTANCE: ${ALLOY_INSTANCE:-community-backend}
       PROM_REMOTE_WRITE_URL: ${PROM_REMOTE_WRITE_URL}
-    expose:
-      - "12345"
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
-      - alloy_data:/var/lib/alloy/data
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
       - backend
     networks:
@@ -64,6 +45,3 @@ services:
 networks:
   app_net:
     name: community-app-net
-
-volumes:
-  alloy_data:
