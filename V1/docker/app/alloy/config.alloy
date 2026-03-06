@@ -16,7 +16,7 @@ prometheus.scrape "spring_backend" {
     "instance"    = sys.env("ALLOY_INSTANCE"),
   }]
 
-  # prod profile uses server.servlet.context-path=/api
+  // prod profile uses server.servlet.context-path=/api
   metrics_path = "/api/actuator/prometheus"
   forward_to   = [prometheus.remote_write.monitoring.receiver]
 }
@@ -72,7 +72,7 @@ loki.process "docker_json" {
 
   stage.labels {
     values = {
-      stream = ""
+      stream = "",
     }
   }
 
