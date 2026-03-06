@@ -1,47 +1,101 @@
 services:
+  nginx:
+    build:
+      context: ./nginx
+    image: community-nginx:latest
+    container_name: community-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: "8080"
+      FRONTEND_HOST: frontend
+      FRONTEND_PORT: "3000"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app_net
+
   backend:
     image: ${BACKEND_IMAGE}
     container_name: community-backend
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     expose:
       - "8080"
     env_file:
-      - ./back.env
-    environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
-      SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
-      SPRING_DATA_REDIS_PASSWORD: ${SPRING_DATA_REDIS_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      - ./backend.env
+    networks:
+      - app_net
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    container_name: community-frontend
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - app_net
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: community-app-node-exporter
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+    expose:
+      - "9100"
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - app_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: community-app-cadvisor
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
     networks:
       - app_net
 
   alloy:
-    image: ${ALLOY_IMAGE:-grafana/alloy:latest}
+    image: grafana/alloy:v1.8.3
     container_name: community-alloy
     restart: unless-stopped
     command:
-      - run
-      - /etc/alloy/config.alloy
+      - "run"
+      - "--storage.path=/var/lib/alloy/data"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "/etc/alloy/config.alloy"
     env_file:
       - ./alloy.env
-    environment:
-      ALLOY_SPRING_TARGET: ${ALLOY_SPRING_TARGET:-backend:8080}
-      ALLOY_INSTANCE: ${ALLOY_INSTANCE:-community-backend}
-      PROM_REMOTE_WRITE_URL: ${PROM_REMOTE_WRITE_URL}
+    expose:
+      - "12345"
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - alloy_data:/var/lib/alloy/data
     depends_on:
       - backend
+      - node-exporter
+      - cadvisor
     networks:
       - app_net
 
 networks:
   app_net:
     name: community-app-net
+
+volumes:
+  alloy_data:

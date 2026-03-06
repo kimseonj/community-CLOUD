@@ -1,7 +1,7 @@
 services:
   redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: community-redis
     restart: unless-stopped
     command:
       - redis-server
@@ -21,6 +21,87 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - redis_net
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.67.0
+    container_name: community-redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    expose:
+      - "9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - redis_net
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: community-redis-node-exporter
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+    expose:
+      - "9100"
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - redis_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: community-redis-cadvisor
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - redis_net
+
+  alloy:
+    image: grafana/alloy:v1.8.3
+    container_name: community-redis-alloy
+    restart: unless-stopped
+    command:
+      - "run"
+      - "--storage.path=/var/lib/alloy/data"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "/etc/alloy/config.alloy"
+    env_file:
+      - .env
+    expose:
+      - "12345"
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - alloy_data:/var/lib/alloy/data
+    depends_on:
+      redis:
+        condition: service_healthy
+      redis-exporter:
+        condition: service_started
+      node-exporter:
+        condition: service_started
+      cadvisor:
+        condition: service_started
+    networks:
+      - redis_net
+
+networks:
+  redis_net:
+    name: community-redis-net
 
 volumes:
   redis_data:
+  alloy_data:

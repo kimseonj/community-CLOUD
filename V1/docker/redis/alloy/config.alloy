@@ -9,16 +9,14 @@ prometheus.scrape "alloy_self" {
   forward_to = [prometheus.remote_write.monitoring.receiver]
 }
 
-prometheus.scrape "spring_backend" {
+prometheus.scrape "redis_exporter" {
   targets = [{
-    "__address__" = sys.env("ALLOY_SPRING_TARGET")
-    "job"         = "spring-backend"
+    "__address__" = "redis-exporter:9121"
+    "job"         = "redis"
     "instance"    = sys.env("ALLOY_INSTANCE")
   }]
 
-  # prod profile uses server.servlet.context-path=/api
-  metrics_path = "/api/actuator/prometheus"
-  forward_to   = [prometheus.remote_write.monitoring.receiver]
+  forward_to = [prometheus.remote_write.monitoring.receiver]
 }
 
 prometheus.scrape "node_exporter" {
@@ -50,9 +48,8 @@ prometheus.remote_write "monitoring" {
 local.file_match "docker_logs" {
   path_targets = [{
     __path__  = sys.env("ALLOY_LOG_PATH_GLOB")
-    job       = "spring-backend-logs"
+    job       = "redis-docker-logs"
     instance  = sys.env("ALLOY_INSTANCE")
-    container = "community-backend"
   }]
 }
 

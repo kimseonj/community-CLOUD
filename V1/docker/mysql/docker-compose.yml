@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: mysql
+    container_name: community-mysql
     restart: unless-stopped
     env_file:
       - .env
@@ -20,6 +20,89 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    networks:
+      - mysql_net
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter:v0.15.1
+    container_name: community-mysqld-exporter
+    restart: unless-stopped
+    command:
+      - --mysqld.address=mysql:3306
+      - --mysqld.username=${MYSQL_EXPORTER_USER}
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQL_EXPORTER_PASSWORD}
+    expose:
+      - "9104"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mysql_net
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: community-mysql-node-exporter
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+    expose:
+      - "9100"
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - mysql_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: community-mysql-cadvisor
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - mysql_net
+
+  alloy:
+    image: grafana/alloy:v1.8.3
+    container_name: community-mysql-alloy
+    restart: unless-stopped
+    command:
+      - "run"
+      - "--storage.path=/var/lib/alloy/data"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "/etc/alloy/config.alloy"
+    env_file:
+      - .env
+    expose:
+      - "12345"
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - alloy_data:/var/lib/alloy/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mysqld-exporter:
+        condition: service_started
+      node-exporter:
+        condition: service_started
+      cadvisor:
+        condition: service_started
+    networks:
+      - mysql_net
+
+networks:
+  mysql_net:
+    name: community-mysql-net
 
 volumes:
   mysql_data:
+  alloy_data:

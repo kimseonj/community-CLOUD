@@ -3,7 +3,9 @@
 ## Start
 
 ```bash
+git clone <REPO_URL> community-CLOUD
 cd /Users/kimsj/kakao-tech/community/community-CLOUD/V1/docker/monitoring
+cp .env.example .env
 docker compose up -d
 ```
 
@@ -28,11 +30,11 @@ docker compose down
 
 - Grafana and Prometheus data are persisted in Docker volumes.
 - Loki data are persisted in Docker volumes.
-- Change Grafana admin password before production use.
+- Change Grafana admin password in `.env` before production use.
 - Current `prometheus/prometheus.yml` scrapes `node-exporter` and `cadvisor` containers in the same monitoring compose stack.
 - Prometheus enables remote-write receiver for Alloy (`/api/v1/write`).
-- App(Spring) metrics are expected to be pushed from app EC2 Alloy via remote-write.
-- App logs are expected to be pushed from app EC2 Alloy to Loki.
+- App, MySQL, and Redis metrics are expected to be pushed from each EC2 Alloy via remote-write.
+- App, MySQL, and Redis logs are expected to be pushed from each EC2 Alloy to Loki.
 - Grafana auto-loads:
   - Prometheus datasource
   - Loki datasource
@@ -45,27 +47,15 @@ docker compose down
 2. Start app stack with:
    - `PROM_REMOTE_WRITE_URL=http://<MONITORING_PRIVATE_IP>:9090/api/v1/write`
    - `LOKI_WRITE_URL=http://<MONITORING_PRIVATE_IP>:3100/loki/api/v1/push`
-3. Open Grafana and verify:
+3. Start MySQL stack with the same monitoring URLs in `V1/docker/mysql/.env`.
+4. Start Redis stack with the same monitoring URLs in `V1/docker/redis/.env`.
+5. Open Grafana and verify:
    - dashboard `Community/Community Backend Performance` has data.
    - dashboard `Community/Community Backend Error Logs` shows error logs.
 
-## Separate EC2 Access (App EC2 + Monitoring EC2)
+## Server layout
 
-- Terraform creates both EC2 in the same VPC and same public subnet.
-- Monitoring SG opens `22`, `3000`, `9090` and allows `3100` from app SG.
-- App SG allows access from Monitoring SG to `9100` (node-exporter) and `8080` (cadvisor) when those exporters run on app EC2.
-
-If you run exporters on the **app EC2**, set Prometheus target to app private IP:
-
-```yaml
-scrape_configs:
-  - job_name: app-node-exporter
-    static_configs:
-      - targets: ["<APP_PRIVATE_IP>:9100"]
-
-  - job_name: app-cadvisor
-    static_configs:
-      - targets: ["<APP_PRIVATE_IP>:8080"]
-```
-
-Example: if app private IP is `10.0.1.23`, use `10.0.1.23:9100`, `10.0.1.23:8080`.
+- Monitoring EC2 only needs `V1/docker/monitoring`
+- App EC2 only needs `V1/docker/app`
+- MySQL EC2 only needs `V1/docker/mysql`
+- Redis EC2 only needs `V1/docker/redis`
