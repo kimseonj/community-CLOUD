@@ -195,18 +195,356 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(hikaricp_connections_pending{job=\"spring-backend\"})",
-          "legendFormat": "pending",
+          "expr": "max by (pool) (hikaricp_connections_pending{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} pending",
           "refId": "A"
         },
         {
           "editorMode": "code",
-          "expr": "max(hikaricp_connections_active{job=\"spring-backend\"})",
-          "legendFormat": "active",
+          "expr": "max by (pool) (hikaricp_connections_active{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} active",
           "refId": "B"
         }
       ],
-      "title": "HikariCP Connections",
+      "title": "HikariCP Active / Pending",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "max by (pool) (hikaricp_connections_active{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} active",
+          "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "max by (pool) (hikaricp_connections_idle{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} idle",
+          "refId": "B"
+        },
+        {
+          "editorMode": "code",
+          "expr": "max by (pool) (hikaricp_connections_min{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} min",
+          "refId": "C"
+        },
+        {
+          "editorMode": "code",
+          "expr": "max by (pool) (hikaricp_connections_max{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} max",
+          "refId": "D"
+        }
+      ],
+      "title": "HikariCP Pool Size (active/idle/min/max)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "100 * max by (pool) (hikaricp_connections_active{job=\"spring-backend\"}) / clamp_min(max by (pool) (hikaricp_connections_max{job=\"spring-backend\"}), 1)",
+          "legendFormat": "{{pool}} utilization",
+          "refId": "A"
+        }
+      ],
+      "title": "HikariCP Pool Utilization (%)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "max by (pool) (hikaricp_connections_pending{job=\"spring-backend\"})",
+          "legendFormat": "{{pool}} pending",
+          "refId": "A"
+        }
+      ],
+      "title": "HikariCP Pending Threads",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "1000 * sum by (pool) (rate(hikaricp_connections_acquire_seconds_sum{job=\"spring-backend\"}[5m])) / clamp_min(sum by (pool) (rate(hikaricp_connections_acquire_seconds_count{job=\"spring-backend\"}[5m])), 1e-9)",
+          "legendFormat": "{{pool}} acquire avg",
+          "refId": "A"
+        }
+      ],
+      "title": "HikariCP Acquire Time Avg (ms)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 24
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "1000 * sum by (pool) (rate(hikaricp_connections_usage_seconds_sum{job=\"spring-backend\"}[5m])) / clamp_min(sum by (pool) (rate(hikaricp_connections_usage_seconds_count{job=\"spring-backend\"}[5m])), 1e-9)",
+          "legendFormat": "{{pool}} usage avg",
+          "refId": "A"
+        }
+      ],
+      "title": "HikariCP Usage Time Avg (ms)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "1000 * sum by (pool) (rate(hikaricp_connections_creation_seconds_sum{job=\"spring-backend\"}[5m])) / clamp_min(sum by (pool) (rate(hikaricp_connections_creation_seconds_count{job=\"spring-backend\"}[5m])), 1e-9)",
+          "legendFormat": "{{pool}} creation avg",
+          "refId": "A"
+        }
+      ],
+      "title": "HikariCP Connection Creation Avg (ms)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (pool) (rate(hikaricp_connections_acquire_seconds_count{job=\"spring-backend\"}[5m]))",
+          "legendFormat": "{{pool}} acquire/s",
+          "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "sum by (pool) (rate(hikaricp_connections_creation_seconds_count{job=\"spring-backend\"}[5m]))",
+          "legendFormat": "{{pool}} creation/s",
+          "refId": "B"
+        },
+        {
+          "editorMode": "code",
+          "expr": "sum by (pool) (rate(hikaricp_connections_timeout_total{job=\"spring-backend\"}[5m])) or sum by (pool) (rate(hikaricp_connections_timeout{job=\"spring-backend\"}[5m]))",
+          "legendFormat": "{{pool}} timeout/s",
+          "refId": "C"
+        }
+      ],
+      "title": "HikariCP Events Rate (/s)",
       "type": "timeseries"
     }
   ],
@@ -228,6 +566,6 @@
   "timezone": "browser",
   "title": "Community Backend Performance",
   "uid": "community-backend-performance",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

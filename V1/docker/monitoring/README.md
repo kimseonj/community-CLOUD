@@ -38,6 +38,7 @@ docker compose down
 - Grafana auto-loads:
   - Prometheus datasource
   - Loki datasource
+  - `Community Infra Metrics` dashboard
   - `Community Backend Performance` dashboard
   - `Community Backend Error Logs` dashboard
 
@@ -50,6 +51,7 @@ docker compose down
 3. Start MySQL stack with the same monitoring URLs in `V1/docker/mysql/.env`.
 4. Start Redis stack with the same monitoring URLs in `V1/docker/redis/.env`.
 5. Open Grafana and verify:
+   - dashboard `Community/Community Infra Metrics` has node metrics.
    - dashboard `Community/Community Backend Performance` has data.
    - dashboard `Community/Community Backend Error Logs` shows error logs.
 

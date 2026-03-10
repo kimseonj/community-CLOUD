@@ -15,3 +15,6 @@ V1/docker/app/deploy.env
 .idea/
 .vscode/
 *.iml
+
+# Private reference docs
+infra.codex.private.md
