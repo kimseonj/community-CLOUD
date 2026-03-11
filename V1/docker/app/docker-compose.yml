@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
+    env_file:
+      - ./frontend.env
     networks:
       - app_net
 
