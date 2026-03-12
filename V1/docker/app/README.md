@@ -49,7 +49,7 @@ For renewal:
 CERTBOT_MODE=renew ./deploy.sh certbot
 ```
 
-After the first successful issuance, `./deploy.sh nginx` and `./deploy.sh all latest` will keep using the issued Let's Encrypt certificate automatically.
+After the first successful issuance, nginx detects the certificate from the shared `/etc/letsencrypt` volume automatically, so `./deploy.sh nginx` and `./deploy.sh all latest` keep using the issued Let's Encrypt certificate.
 
 After certbot success, HTTPS should be available at `https://<CERTBOT_PRIMARY_DOMAIN>` and HTTP should redirect to HTTPS.
 
