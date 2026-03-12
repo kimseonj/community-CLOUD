@@ -1,6 +1,26 @@
 server {
     listen 80;
-    server_name _;
+    server_name ${TLS_SERVER_NAME} _;
+
+    client_max_body_size 20m;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root ${ACME_WEBROOT};
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name ${TLS_SERVER_NAME} _;
+
+    ssl_certificate ${TLS_CERT_PATH};
+    ssl_certificate_key ${TLS_KEY_PATH};
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
 
     client_max_body_size 20m;
 

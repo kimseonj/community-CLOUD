@@ -13,9 +13,38 @@ services:
       BACKEND_PORT: "8080"
       FRONTEND_HOST: frontend
       FRONTEND_PORT: "3000"
+      TLS_SERVER_NAME: ${CERTBOT_PRIMARY_DOMAIN:-localhost}
+      ACME_WEBROOT: /var/www/certbot
+      TLS_CERT_PATH: ${TLS_CERT_PATH:-/etc/nginx/selfsigned/fullchain.pem}
+      TLS_KEY_PATH: ${TLS_KEY_PATH:-/etc/nginx/selfsigned/privkey.pem}
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
     depends_on:
       - backend
       - frontend
+    networks:
+      - app_net
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: community-certbot
+    profiles:
+      - ssl
+    depends_on:
+      - nginx
+    environment:
+      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
+      CERTBOT_DOMAINS: ${CERTBOT_DOMAINS}
+      CERTBOT_STAGING: ${CERTBOT_STAGING:-false}
+      CERTBOT_MODE: ${CERTBOT_MODE:-issue}
+      WEBROOT_PATH: /var/www/certbot
+    volumes:
+      - ./nginx/certbot-entrypoint.sh:/usr/local/bin/certbot-entrypoint.sh:ro
+      - certbot_www:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    command: ["sh", "/usr/local/bin/certbot-entrypoint.sh"]
+    restart: "no"
     networks:
       - app_net
 
@@ -105,3 +134,5 @@ networks:
 
 volumes:
   alloy_data:
+  certbot_www:
+  certbot_certs:
