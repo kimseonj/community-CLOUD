@@ -34,8 +34,8 @@ services:
     depends_on:
       - nginx
     environment:
-      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
-      CERTBOT_DOMAINS: ${CERTBOT_DOMAINS}
+      CERTBOT_EMAIL: ${CERTBOT_EMAIL:-}
+      CERTBOT_DOMAINS: ${CERTBOT_DOMAINS:-}
       CERTBOT_STAGING: ${CERTBOT_STAGING:-false}
       CERTBOT_MODE: ${CERTBOT_MODE:-issue}
       WEBROOT_PATH: /var/www/certbot
@@ -43,7 +43,7 @@ services:
       - ./nginx/certbot-entrypoint.sh:/usr/local/bin/certbot-entrypoint.sh:ro
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
-    command: ["sh", "/usr/local/bin/certbot-entrypoint.sh"]
+    entrypoint: ["sh", "/usr/local/bin/certbot-entrypoint.sh"]
     restart: "no"
     networks:
       - app_net

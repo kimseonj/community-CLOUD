@@ -15,6 +15,15 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+load_project_env() {
+  if [ -f "./.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    source "./.env"
+    set +a
+  fi
+}
+
 load_tls_cert_env() {
   local env_file="./.env"
   local primary_domain="${CERTBOT_PRIMARY_DOMAIN:-}"
@@ -42,6 +51,8 @@ load_tls_cert_env() {
     echo "Use Let's Encrypt cert for $primary_domain"
   fi
 }
+
+load_project_env
 
 if [ "$COMPONENT" = "backend" ] || [ "$COMPONENT" = "frontend" ] || [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "nginx" ]; then
   AWS_REGION="${AWS_REGION:-ap-northeast-2}"
