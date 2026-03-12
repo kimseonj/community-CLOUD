@@ -31,19 +31,19 @@ export FRONTEND_IMAGE="${ECR_REGISTRY}/${FRONT_REPOSITORY}:${TAG}"
 case "$COMPONENT" in
   backend)
     docker compose pull backend
-    docker compose up -d backend
+    docker compose up -d --force-recreate backend
     ;;
   frontend)
     docker compose pull frontend
-    docker compose up -d frontend
+    docker compose up -d --force-recreate frontend
     ;;
   nginx)
-    docker compose up -d --build nginx
+    docker compose up -d --build --force-recreate nginx
     ;;
   all)
     docker compose pull backend frontend
     docker compose pull alloy || true
-    docker compose up -d --build nginx backend frontend alloy
+    docker compose up -d --build --force-recreate nginx backend frontend alloy
     ;;
   *)
     echo "Usage: $0 [backend|frontend|nginx|all] [tag]"

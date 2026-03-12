@@ -75,6 +75,7 @@ bootstrap_stack() {
     app)
       ensure_file "$stack_dir" ".env" ".env.example"
       ensure_file "$stack_dir" "backend.env" "backend.env.example"
+      ensure_file "$stack_dir" "frontend.env" "frontend.env.example"
       ensure_file "$stack_dir" "alloy.env" "alloy.env.example"
       ensure_file "$stack_dir" "deploy.env" "deploy.env.example"
       ;;

@@ -9,11 +9,13 @@ cp .env.example .env
 cp backend.env.example backend.env
 cp alloy.env.example alloy.env
 cp deploy.env.example deploy.env
+cp frontend.env.example frontend.env
 ```
 
 Edit files by ownership:
 - `.env`: image URI only (`BACKEND_IMAGE`, `FRONTEND_IMAGE`)
 - `backend.env`: backend runtime/app secrets
+- `frontend.env`: frontend runtime values (ex. `API_BASE_URL`)
 - `alloy.env`: Alloy scrape/remote-write/Loki settings
 - `deploy.env`: deploy script/AWS account settings
 

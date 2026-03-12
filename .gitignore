@@ -6,6 +6,7 @@ V1/terraform/
 !.env.example
 V1/docker/*/.env
 V1/docker/app/backend.env
+V1/docker/app/frontend.env
 V1/docker/app/alloy.env
 V1/docker/app/deploy.env
 
