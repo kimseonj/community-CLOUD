@@ -1,5 +1,6 @@
 # Terraform
-V1/terraform/
+V1/terraform/.terraform/
+V1/terraform/*.tfstate*
 
 # Environment variables
 .env
