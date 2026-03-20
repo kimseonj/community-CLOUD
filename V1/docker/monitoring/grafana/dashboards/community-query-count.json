@@ -359,6 +359,146 @@
       ],
       "title": "초당 총 SQL 쿼리 실행 수",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "color-text" },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "엔드포인트" },
+            "properties": [{ "id": "custom.width", "value": 300 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
+      "id": 7,
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "평균" }],
+        "footer": { "show": false }
+      },
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": { "join": ["method", "uri"], "value": "Value" }
+        }
+      ],
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rate(jpa_query_count_by_endpoint_sum{job=\"spring-backend\"}[5m]) / rate(jpa_query_count_by_endpoint_count{job=\"spring-backend\"}[5m])",
+          "legendFormat": "{{method}} {{uri}}",
+          "refId": "A",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "editorMode": "code",
+          "expr": "jpa_query_count_by_endpoint{job=\"spring-backend\", quantile=\"0.95\"}",
+          "legendFormat": "{{method}} {{uri}}",
+          "refId": "B",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "editorMode": "code",
+          "expr": "jpa_query_count_by_endpoint_max{job=\"spring-backend\"}",
+          "legendFormat": "{{method}} {{uri}}",
+          "refId": "C",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "title": "엔드포인트별 SQL 쿼리 수 (테이블)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "쿼리 수",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 36 },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rate(jpa_query_count_by_endpoint_sum{job=\"spring-backend\"}[5m]) / rate(jpa_query_count_by_endpoint_count{job=\"spring-backend\"}[5m])",
+          "legendFormat": "{{method}} {{uri}}",
+          "refId": "A"
+        }
+      ],
+      "title": "엔드포인트별 평균 쿼리 수 추이",
+      "type": "timeseries"
     }
   ],
   "schemaVersion": 39,
