@@ -195,14 +195,14 @@ resource "aws_security_group_rule" "db_ssh" {
   cidr_blocks       = [var.ssh_ingress_cidr]
 }
 
-resource "aws_security_group_rule" "db_mysql_from_admin" {
+resource "aws_security_group_rule" "db_mysql_public" {
   type              = "ingress"
-  description       = "MySQL from admin IP"
+  description       = "MySQL public access"
   from_port         = 3306
   to_port           = 3306
   protocol          = "tcp"
   security_group_id = aws_security_group.db.id
-  cidr_blocks       = [var.db_ingress_cidr]
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "db_egress_all" {
