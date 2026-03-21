@@ -101,13 +101,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"spring-backend\", uri!~\"/actuator.*\"}[2m])) by (le, uri))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"spring-backend\", uri!~\".*actuator.*\"}[2m])) by (le, uri))",
           "legendFormat": "{{uri}} p95",
           "refId": "A"
         },
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"spring-backend\", uri!~\"/actuator.*\"}[2m])) by (le, uri))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"spring-backend\", uri!~\".*actuator.*\"}[2m])) by (le, uri))",
           "legendFormat": "{{uri}} p99",
           "refId": "B"
         }
