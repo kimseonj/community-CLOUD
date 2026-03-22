@@ -4,7 +4,7 @@ set -eu
 domain="${CERTBOT_PRIMARY_DOMAIN:-${TLS_SERVER_NAME:-}}"
 
 if [ -z "$domain" ] || [ "$domain" = "localhost" ] || [ "$domain" = "_" ]; then
-  exit 0
+  return 0
 fi
 
 cert_path="/etc/letsencrypt/live/$domain/fullchain.pem"
