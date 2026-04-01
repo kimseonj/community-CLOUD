@@ -78,7 +78,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | level = \"ERROR\" [5m]))",
+          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level = \"ERROR\" [5m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -142,7 +142,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | level = \"WARN\" [5m]))",
+          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level = \"WARN\" [5m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -195,7 +195,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (level) (count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | level =~ \"ERROR|WARN\" [1m]))",
+          "expr": "sum by (level) (count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level =~ \"ERROR|WARN\" [1m]))",
           "legendFormat": "{{level}}",
           "queryType": "range",
           "refId": "A"
@@ -233,7 +233,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json | level =~ \"ERROR|WARN\"",
+          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level =~ \"ERROR|WARN\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -270,7 +270,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json",
+          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\"",
           "queryType": "range",
           "refId": "A"
         }
