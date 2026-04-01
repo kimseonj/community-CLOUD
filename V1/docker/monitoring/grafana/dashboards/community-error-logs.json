@@ -78,7 +78,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"spring-backend-logs\"} |~ \"\\\\\"timestamp\\\\\"\" | json | level = \"ERROR\" [5m]))",
+          "expr": "sum(count_over_time({job=\"spring-backend-logs\"} |~ \"timestamp.*level\" | json | level = \"ERROR\" [5m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -142,7 +142,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"spring-backend-logs\"} |~ \"\\\\\"timestamp\\\\\"\" | json | level = \"WARN\" [5m]))",
+          "expr": "sum(count_over_time({job=\"spring-backend-logs\"} |~ \"timestamp.*level\" | json | level = \"WARN\" [5m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -195,7 +195,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (level) (count_over_time({job=\"spring-backend-logs\"} |~ \"\\\\\"timestamp\\\\\"\" | json | level =~ \"ERROR|WARN\" [1m]))",
+          "expr": "sum by (level) (count_over_time({job=\"spring-backend-logs\"} |~ \"timestamp.*level\" | json | level =~ \"ERROR|WARN\" [1m]))",
           "legendFormat": "{{level}}",
           "queryType": "range",
           "refId": "A"
@@ -233,7 +233,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"spring-backend-logs\"} |~ \"\\\\\"timestamp\\\\\"\" | json | level =~ \"ERROR|WARN\" | line_format \"[{{.level}}] {{.mdc_method}} {{.mdc_uri}} | {{.message}}\"",
+          "expr": "{job=\"spring-backend-logs\"} |~ \"timestamp.*level\" | json | level =~ \"ERROR|WARN\" | line_format \"[{{.level}}] {{.mdc_method}} {{.mdc_uri}} | {{.message}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -437,7 +437,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"spring-backend-logs\"} |~ \"\\\\\"timestamp\\\\\"\" | json",
+          "expr": "{job=\"spring-backend-logs\"} |~ \"timestamp.*level\" | json",
           "queryType": "range",
           "refId": "A"
         }
