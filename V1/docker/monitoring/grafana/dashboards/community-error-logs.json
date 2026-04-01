@@ -27,7 +27,7 @@
         "type": "loki",
         "uid": "loki"
       },
-      "description": "Selected service error log count in the last 5 minutes",
+      "description": "ERROR level log count in the last 5 minutes",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -78,7 +78,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level = \"ERROR\" [5m]))",
+          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | level = \"ERROR\" [5m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -91,7 +91,7 @@
         "type": "loki",
         "uid": "loki"
       },
-      "description": "Selected service warn log count in the last 5 minutes",
+      "description": "WARN level log count in the last 5 minutes",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -142,7 +142,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level = \"WARN\" [5m]))",
+          "expr": "sum(count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | level = \"WARN\" [5m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -195,7 +195,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (level) (count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level =~ \"ERROR|WARN\" [1m]))",
+          "expr": "sum by (level) (count_over_time({job=\"spring-backend-logs\",container=~\"$container\"} | json | level =~ \"ERROR|WARN\" [1m]))",
           "legendFormat": "{{level}}",
           "queryType": "range",
           "refId": "A"
@@ -221,7 +221,7 @@
         "enableLogDetails": true,
         "prettifyLogMessage": false,
         "showCommonLabels": false,
-        "showLabels": true,
+        "showLabels": false,
         "showTime": true,
         "sortOrder": "Descending",
         "wrapLogMessage": true
@@ -233,7 +233,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\" | level =~ \"ERROR|WARN\"",
+          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json | level =~ \"ERROR|WARN\" | line_format \"[{{.level}}] {{.mdc_method}} {{.mdc_uri}} | {{.message}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -246,6 +246,170 @@
         "type": "loki",
         "uid": "loki"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "timestamp"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "level"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 60
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "ERROR": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "ERROR"
+                      },
+                      "WARN": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "WARN"
+                      },
+                      "INFO": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "INFO"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "message"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 500
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mdc_method"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 70
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mdc_uri"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mdc_requestId"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mdc_clientIp"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "logger"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "thread"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "context"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
         "h": 13,
         "w": 24,
@@ -254,14 +418,17 @@
       },
       "id": 3,
       "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Time",
+            "desc": true
+          }
+        ]
       },
       "targets": [
         {
@@ -270,13 +437,54 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json | __error__=\"\"",
+          "expr": "{job=\"spring-backend-logs\",container=~\"$container\"} | json",
           "queryType": "range",
           "refId": "A"
         }
       ],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "id": true,
+              "tsNs": true,
+              "Line": true,
+              "Time": false,
+              "job": true,
+              "instance": true,
+              "container": true,
+              "filename": true,
+              "service_name": true,
+              "stream": true,
+              "labels": true,
+              "__error__": true,
+              "__error_details__": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "level": 1,
+              "message": 2,
+              "mdc_method": 3,
+              "mdc_uri": 4,
+              "mdc_requestId": 5,
+              "mdc_clientIp": 6,
+              "logger": 7,
+              "thread": 8,
+              "timestamp": 9,
+              "context": 10
+            }
+          }
+        }
+      ],
       "title": "All Logs",
-      "type": "logs"
+      "type": "table"
     }
   ],
   "refresh": "10s",
@@ -284,8 +492,7 @@
   "style": "dark",
   "tags": [
     "community",
-    "logs",
-    "errors"
+    "logs"
   ],
   "templating": {
     "list": [
